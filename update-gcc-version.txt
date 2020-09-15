@@ -1,0 +1,78 @@
+1. Before install, please download the following artifactory:
+boost_1_70_0.zip                     cmake-3.15.5.tar.gz
+gcc-gcc-5_4_0-release.tar.gz         gmp-4.3.2.tar.bz2
+mpc-0.8.1.tar.gz                     mpfr-2.4.2.tar.bz2
+zlib-devel-1.2.3-29.el6.x86_64.rpm
+
+2. install gmp-4.3.2
+1) unzip
+	tar -xjvf gmp-4.3.2.tar.bz2 && cd gmp-4.3.2
+2) make build directory
+	mkdir build && cd build
+3) configure
+	../configure --prefix=/usr/local/gmp-4.3.2
+4) make & install
+	make && make install
+
+3. install mpfr-2.4.2
+1) unzip
+	tar -xjvf mpfr-2.4.2.tar.bz2 && cd mpfr-2.4.2
+2) make build directory
+	mkdir build && cd build
+3) configure
+	../configure --prefix=/usr/local/mpfr-2.4.2 --with-gmp=/usr/local/gmp-4.3.2
+4) make & install
+	make && make install
+
+4. install mpc-0.8.1.tar.gz
+1) unzip
+	tar -xzvf mpc-0.8.1.tar.gz && cd mpc-0.8.1
+2) make directory
+	mkdir build && cd build
+3) configure
+	../configure --prefix=/usr/local/mpc-0.8.1 --with-gmp=/usr/local/gmp-4.3.2 --with-mpfr=/usr/local/mpfr-2.4.2
+4) make & install
+	make && make install
+
+5. export the environment variable
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gmp-4.3.2/lib:/usr/local/mpc-0.8.1/lib:/usr/local/mpfr-2.4.2/lib
+
+6. install gcc-5.4.0
+1) unzip
+	tar -xzvf gcc-gcc-5_4_0-release.tar.gz && cd gcc-gcc-5_4_0-release
+2) make build directory
+	mkdir build && cd build
+3) configure
+	../configure --prefix=/usr/local/gcc-5.4.0 --enable-threads=posix --disable-checking --disable-multilib --enable-languages=c,c++ --with-gmp=/usr/local/gmp-4.3.2 --with-mpfr=/usr/local/mpfr-2.4.2 --with-mpc=/usr/local/mpc-0.8.1
+4) make & install
+	make && make install
+
+## NB: if errors happen when build gcc, the run: make distclean; then do the 3) and 4)
+
+7. change symbol link for gcc/g++
+	mv /usr/bin/gcc /usr/bin/gcc.old
+	mv /usr/bin/g++ /usr/bin/g++.old
+	ln -s /usr/local/gcc-5.4.0/bin/gcc /usr/bin/gcc
+	ln -s /usr/local/gcc-5.4.0/bin/g++ /usr/bin/g++
+
+8. rebuild link for glibc:
+	ln -sf /usr/local/gcc-5.4.0/lib64/libstdc++.so.6.0.21 /usr/lib64/libstdc++.so.6
+	
+9. install cmake
+1) unzip
+    tar xvfz cmake-3.15.5.tar.gz
+    cd cmake-3.15.5
+2) make build directory
+    mkdir build && cd build
+3) configure
+    ../configure && gmake && make install
+	
+10. install zlib
+    rpm -ivh zlib-devel-1.2.3-29.el6.x86_64.rpm
+
+11. install boost 
+    unzip boost_1_70_0.zip && cd boost_1_70_0
+    ./bootstrap.sh --with-libraries=all --with-toolset=gcc
+	./b2 install
+
+   

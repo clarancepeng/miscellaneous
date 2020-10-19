@@ -13,12 +13,14 @@ openssl pkcs8 -topk8 -inform PEM -in rsa_private_key.pem -outform PEM -nocrypt >
 
 
 1. root># openssl genrsa -out rootkey.pem 2048
+
 Generating RSA private key, 2048 bit long modulus
 .......+++
 ..................+++
 e is 65537 (0x10001)
 
 2. root># openssl req -x509 -new -key rootkey.pem -out root.crt
+
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -35,12 +37,14 @@ Common Name (e.g. server FQDN or YOUR name) []:fixgateway
 Email Address []:fixgateway@hstong.com
 
 3. root># openssl genrsa -out clientkey.pem 2048
+
 Generating RSA private key, 2048 bit long modulus
 ...+++
 ..............................................................................................+++
 e is 65537 (0x10001)
 
 4. root># openssl req -new -key clientkey.pem -out client.csr
+
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -62,17 +66,20 @@ A challenge password []:password
 An optional company name []:hstong
 
 5. root># openssl x509 -req -in client.csr -CA root.crt -CAkey rootkey.pem -CAcreateserial -days 3650 -out client.crt
+
 Signature ok
 subject=/C=cn/ST=Guangdong/L=Shenzhen/O=hstong.com/OU=hstong/CN=fixgateway/emailAddress=fixgateway@hstong.com
 Getting CA Private Key
 
 6. root># openssl genrsa -out serverkey.pem 2048
+
 Generating RSA private key, 2048 bit long modulus
 ....+++
 ........................................................................+++
 e is 65537 (0x10001)
 
 7. root># openssl req -new -key serverkey.pem -out server.csr
+
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -94,19 +101,23 @@ A challenge password []:password
 An optional company name []:hstong
 
 8. root># openssl x509 -req -in server.csr -CA root.crt -CAkey rootkey.pem -CAcreateserial -days 3650 -out server.crt
+
 Signature ok
 subject=/C=cn/ST=Guangdong/L=Shenzhen/O=hstong.com/OU=hstong/CN=fixgateway/emailAddress=fixgateway@hstong.com
 Getting CA Private Key
 
 9. root># openssl pkcs12 -export -in client.crt -inkey clientkey.pem -out client.pkcs12
+
 Enter Export Password:
 Verifying - Enter Export Password:
 
 10. root># openssl pkcs12 -export -in server.crt -inkey serverkey.pem -out server.pkcs12
+
 Enter Export Password:
 Verifying - Enter Export Password:
 
 11. root># keytool -importkeystore -srckeystore client.pkcs12 -destkeystore client.jks -srcstoretype pkcs12
+
 Enter destination keystore password:  
 Re-enter new password: 
 Enter source keystore password:  
@@ -114,6 +125,7 @@ Entry for alias 1 successfully imported.
 Import command completed:  1 entries successfully imported, 0 entries failed or cancelled
 
 12. root># keytool -importkeystore -srckeystore server.pkcs12 -destkeystore server.jks -srcstoretype pkcs12
+
 Enter destination keystore password:  
 Re-enter new password: 
 Enter source keystore password:  
@@ -121,6 +133,7 @@ Entry for alias 1 successfully imported.
 Import command completed:  1 entries successfully imported, 0 entries failed or cancelled
 
 13. root># keytool -importcert -alias ca -file root.crt -keystore clienttrust.jks
+
 Enter keystore password:  
 Re-enter new password: 
 Owner: EMAILADDRESS=fixgateway@hstong.com, CN=fixgateway, OU=hstong, O=hstong.com, L=Shenzhen, ST=Guangdong, C=cn
@@ -163,10 +176,12 @@ Certificate was added to keystore
 
 
 14. root># keytool -importcert -alias clientcert -file client.crt -keystore clienttrust.jks
+
 Enter keystore password:  
 Certificate was added to keystore
 
 15. root># keytool -importcert -alias ca -file root.crt -keystore servertrust.jks
+
 Enter keystore password:  
 Re-enter new password: 
 Owner: EMAILADDRESS=fixgateway@hstong.com, CN=fixgateway, OU=hstong, O=hstong.com, L=Shenzhen, ST=Guangdong, C=cn
@@ -208,6 +223,7 @@ Trust this certificate? [no]:  yes
 Certificate was added to keystore
 
 16. root># keytool -importcert -alias servercert -file server.crt -keystore servertrust.jks
+
 Enter keystore password:  
 Certificate was added to keystore
 

@@ -1,0 +1,40 @@
+使用QuickFIX连接FIX服务端时有时会遇到服务端需要SSL连接，这时有两种不同的实现方案：
+第一种就是FIX客户端自己实现SSL的连接，另外一种就是借助SSL的代理工具来实现，Stunnel就是这种代理之一：
+1. stunnel配置
+[client]
+client = yes
+accept = 29001
+connect = 192.168.90.103:29000
+cert = F:\\desktop_back\\20200505\\fixclient\\cert\\client.crt
+key = F:\\desktop_back\\20200505\\fixclient\\cert\\clientkey.pem
+verifyPeer = yes
+CAfile = F:\\desktop_back\\20200505\\fixclient\\cert\\server.crt
+
+
+2. fix客户端配置（SenderCompID为自己的账户）
+[SESSION]
+# inherit ConnectionType, ReconnectInterval and SenderCompID from default
+BeginString=FIX.4.2
+SenderCompID=10012222
+TargetCompID=HSFIXGW
+SocketConnectHost=localhost
+# 192.168.90.103
+SocketConnectPort=29001
+
+3. FIX.4.2登录需要修改toAdmin
+void Application::toAdmin(FIX::Message& message, const FIX::SessionID& sessionID) {
+    FIX::MsgType msgType;
+    FIX::Header header = message.getHeader();
+    header.getField(msgType);
+    std::cout << "***** MsgType= " << msgType;
+    if (msgType.getString() == "A") {
+        // for fix.4.2
+        FIX::RawData rawData;
+        rawData.setString("789152"); // password
+        message.setField(rawData);
+        FIX::RawDataLength rawDataLength;
+        rawDataLength.setValue(6); //password length
+        message.setField(rawDataLength);
+        std::cout << "*********** Send Logon Message *********" << std::endl;
+    }
+}
